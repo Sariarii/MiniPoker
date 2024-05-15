@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('head'); %>
+</head>
+<body>
+    <% for(const [idx,user] of UserList.entries()) { %>
+        <% if  (user.name ==="player") { %>
+            <img src="/images/<%= cartesDesignList[0]%>.png"><img src="/images/<%= cartesDesignList[1]%>.png">
+        <% } else {%>
+            <img src="/images/carte-a-jouer.png"><img src="/images/carte-a-jouer.png">
+        <% } %>
+        <li><%= user.name %></li>
+        <li><%= user.jetons %></li>
+    <% } %>
+    <form action="/accueil/game" method="post">
+        <button type="submit" name="check" class="col-lg-2">check</button>
+        <button type="submit" name="call" class="col-lg-2">call</button>
+        <button type="submit" name="raise" class="col-lg-2">raise</button>
+        <button type="submit" name="fold" class="col-lg-2">fold</button>
+    </form>
+</body>
+</html>
