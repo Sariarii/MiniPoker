@@ -12,12 +12,21 @@
         <% } %>
         <li><%= user.name %></li>
         <li><%= user.jetons %></li>
+        <li>mise : <%= user.mise %></li>
     <% } %>
+
+    <% if (UserList[0].currentTurn===false) { %>
+        <p>C'est au tour de l'adversaire...</p>
+        <% setTimeout(BotTurn,5000) %>
+        <meta http-equiv="refresh" content="6">
+    <%} else { %>
     <form action="/accueil/game" method="post">
-        <button type="submit" name="check" class="col-lg-2">check</button>
-        <button type="submit" name="call" class="col-lg-2">call</button>
-        <button type="submit" name="raise" class="col-lg-2">raise</button>
-        <button type="submit" name="fold" class="col-lg-2">fold</button>
+        <button type="submit" name="action" value="check" class="col-lg-2">check</button>
+        <button type="submit" name="action" value="call" class="col-lg-2">call</button>
+        <button type="submit" name="action" value="raise" class="col-lg-2">raise</button>
+        <button type="submit" name="action" value="fold" class="col-lg-2">fold</button>
     </form>
+    <% } %>
+    <p>pot : <%= pot %></p>
 </body>
 </html>

@@ -3,5 +3,6 @@ export type user={
     jetons:number
     mainName:string
     mainValue:number
+    mise:number
     currentTurn:boolean
 }
