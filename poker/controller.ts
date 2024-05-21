@@ -16,6 +16,7 @@ let ValueNine:number=0
 let FlushPique:number=0
 let flushCoeur:number=0
 let count:number
+let aQuiLeTour:number=1
 let infoValeurCartes:string
 let infoValeurCartesBot:string
 
@@ -159,24 +160,62 @@ export function CompareCard(Id:number){
     }
     console.log(ValueAs,ValueK,ValueQ,ValueJ,ValueTen,FlushPique,flushCoeur)
     if (ValueAs===2 || ValueK===2 || ValueQ===2 || ValueJ===2 || ValueTen===2 || ValueNine===2){
+        UserList[Id].WinHand=1
         return "Paire"
     } else if ((ValueAs===1 && ValueK===1 && ValueQ===1) || (ValueJ===1 && ValueK===1 && ValueQ===1) || (ValueTen===1 && ValueJ===1 && ValueQ===1) || (ValueTen===1 && ValueNine===1 && ValueJ===1) && (flushCoeur!=3 || FlushPique!=3)){
+        UserList[Id].WinHand=2
         return "Suite"
     } else if (flushCoeur===3 || FlushPique===3) {
+        UserList[Id].WinHand=3
         return "Couleur"
     } else if ((ValueAs===1 && ValueK===1 && ValueQ===1) || (ValueJ===1 && ValueK===1 && ValueQ===1) || (ValueTen===1 && ValueJ===1 && ValueQ===1) || (ValueTen===1 && ValueNine===1 && ValueJ===1) && (flushCoeur===3 || FlushPique===3)){
+        UserList[Id].WinHand=4
         return "Suite-Couleur"
     } else {
+        UserList[Id].WinHand=0
         return "Carte Haute"  
     }
     }
 
+export function FoldOrShowdown(){
+    TurnPartie=1
+    stackinitial=UserList[0].jetons+UserList[1].jetons
+    UserList[0].jetons-=1
+    UserList[1].jetons-=1
+    pot=stackinitial-(UserList[0].jetons+UserList[1].jetons)
+    RemplissageCartes()
+    RecupValeur=Randomise()
+    RandomCarte = RecupValeur.RandomCarte
+    ValueCard=RecupValeur.ValueCard
+    RecupValeur=Randomise()
+    RandomCarte=RandomCarte+" "+RecupValeur.RandomCarte
+    ValueCard=ValueCard+RecupValeur.ValueCard
+    UserList[0].mainName=RandomCarte
+    UserList[0].mainValue=ValueCard
+    RecupValeur=Randomise()
+    RandomCarte = RecupValeur.RandomCarte
+    ValueCard=RecupValeur.ValueCard
+    RecupValeur=Randomise()
+    RandomCarte=RandomCarte+" "+RecupValeur.RandomCarte
+    ValueCard=ValueCard+RecupValeur.ValueCard
+    UserList[1].mainName=RandomCarte
+    UserList[1].mainValue=ValueCard
+    aQuiLeTour++
+    if (aQuiLeTour%2!=0){
+        UserList[0].currentTurn=true
+    }else{
+        UserList[0].currentTurn=false
+    }
+}
+
 export function BotTurn(){
     let optionsList=[""]
-    if (UserList[0].mise===0 && UserList[1].mise===0){
+    if (UserList[0].mise===0 && UserList[1].mise===0 && TurnChange%2!=0){
         optionsList=["check","mise1","mise2"]
     } else if (TurnChange===2 && UserList[0].mise > UserList[1].mise && UserList[1].mise===0){
-        optionsList=["raise"]
+        optionsList=["raise","call","fold"]
+    } else if(TurnChange%2===0 && UserList[0].mise===0 && UserList[1].mise===0) {
+        optionsList=["raise","check"]
     } else {
         optionsList=["call","fold"]
     }
@@ -192,7 +231,11 @@ export function BotTurn(){
             break;
         case 'raise':
             UserList[0].currentTurn=true
+            if (UserList[0].mise===0){
+                UserList[1].mise+=2;
+            } else {
             UserList[1].mise+=UserList[0].mise*2;
+            }
             UserList[1].jetons=UserList[1].jetons-UserList[1].mise;
             pot+=UserList[1].mise
             break;
@@ -219,28 +262,12 @@ export function BotTurn(){
             pot=0
             cartesList=[]
             cartesDesignList=[]
-            RemplissageCartes()
-            RecupValeur=Randomise()
-            RandomCarte = RecupValeur.RandomCarte
-            ValueCard=RecupValeur.ValueCard
-            RecupValeur=Randomise()
-            RandomCarte=RandomCarte+" "+RecupValeur.RandomCarte
-            ValueCard=ValueCard+RecupValeur.ValueCard
-            UserList[1].mainName=RandomCarte
-            UserList[1].mainValue=ValueCard
-            RecupValeur=Randomise()
-            RandomCarte = RecupValeur.RandomCarte
-            ValueCard=RecupValeur.ValueCard
-            RecupValeur=Randomise()
-            RandomCarte=RandomCarte+" "+RecupValeur.RandomCarte
-            ValueCard=ValueCard+RecupValeur.ValueCard
-            UserList[0].mainName=RandomCarte
-            UserList[0].mainValue=ValueCard
+            FoldOrShowdown()
             break;
         case 'call':
             UserList[0].currentTurn=true
             if (UserList[1].mise!=0){
-                UserList[1].jetons=UserList[0].jetons
+                UserList[1].jetons-=UserList[0].mise-UserList[1].mise
                 pot=pot+UserList[0].mise-UserList[1].mise
             } else {
                 UserList[1].mise=UserList[0].mise
@@ -268,6 +295,46 @@ export function BotTurn(){
         infoValeurCartesBot=CompareCard(1)
         console.log(infoValeurCartes)
         console.log(infoValeurCartesBot)
+        if (UserList[0].WinHand>UserList[1].WinHand){
+            UserList[0].jetons=UserList[0].jetons+pot
+            UserList[0].mise=0
+            UserList[1].mise=0
+            TurnChange=1
+            pot=0
+            cartesList=[]
+            cartesDesignList=[]
+            FoldOrShowdown()
+        } else if (UserList[0].WinHand===UserList[1].WinHand){
+            if (UserList[0].mainValue>UserList[1].mainValue){
+                UserList[0].jetons=UserList[0].jetons+pot
+                UserList[0].mise=0
+                UserList[1].mise=0
+                TurnChange=1
+                pot=0
+                cartesList=[]
+                cartesDesignList=[]
+                FoldOrShowdown()
+            } else {
+                UserList[1].jetons=UserList[1].jetons+pot
+                UserList[0].mise=0
+                UserList[1].mise=0
+                TurnChange=1
+                pot=0
+                cartesList=[]
+                cartesDesignList=[]
+                FoldOrShowdown()     
+            }            
+        } else {
+            UserList[1].jetons=UserList[1].jetons+pot
+            UserList[0].mise=0
+            UserList[1].mise=0
+            TurnChange=1
+            pot=0
+            cartesList=[]
+            cartesDesignList=[]
+            FoldOrShowdown()  
+        }
+
     }
         
 }
@@ -287,6 +354,7 @@ let users:user={
     mainName:RandomCarte,
     mainValue:ValueCard,
     mise:0,
+    WinHand:0,
     currentTurn:true
 }
 UserList.push(users)
@@ -304,6 +372,7 @@ users={
     mainName:RandomCarte,
     mainValue:ValueCard,
     mise:0,
+    WinHand:0,
     currentTurn:false
 }
 UserList.push(users)
@@ -333,8 +402,12 @@ export const Turn : RequestHandler = (req,res)=>{
             TurnChange++
             break;
         case 'raise':
+            if (UserList[1].mise===0){
+                UserList[0].mise+=2;
+            } else {
+                UserList[0].mise+=UserList[1].mise*2;
+            }
             UserList[0].currentTurn=false
-            UserList[0].mise+=UserList[1].mise*2;
             UserList[0].jetons=UserList[0].jetons-UserList[0].mise;
             pot+=UserList[0].mise;
             break;
@@ -347,28 +420,12 @@ export const Turn : RequestHandler = (req,res)=>{
             pot=0
             cartesList=[]
             cartesDesignList=[]
-            RemplissageCartes()
-            RecupValeur=Randomise()
-            RandomCarte = RecupValeur.RandomCarte
-            ValueCard=RecupValeur.ValueCard
-            RecupValeur=Randomise()
-            RandomCarte=RandomCarte+" "+RecupValeur.RandomCarte
-            ValueCard=ValueCard+RecupValeur.ValueCard
-            UserList[1].mainName=RandomCarte
-            UserList[1].mainValue=ValueCard
-            RecupValeur=Randomise()
-            RandomCarte = RecupValeur.RandomCarte
-            ValueCard=RecupValeur.ValueCard
-            RecupValeur=Randomise()
-            RandomCarte=RandomCarte+" "+RecupValeur.RandomCarte
-            ValueCard=ValueCard+RecupValeur.ValueCard
-            UserList[0].mainName=RandomCarte
-            UserList[0].mainValue=ValueCard
+            FoldOrShowdown()
             break;
         case 'call':
             UserList[0].currentTurn=false
             if (UserList[0].mise!=0){
-                UserList[0].jetons=UserList[1].jetons
+                UserList[0].jetons-=UserList[1].mise-UserList[0].mise
                 pot=pot+UserList[1].mise-UserList[0].mise
             } else {
                 UserList[0].mise=UserList[1].mise
@@ -403,13 +460,53 @@ export const Turn : RequestHandler = (req,res)=>{
         UserList[0].mise=0
         UserList[1].mise=0
         console.log(UserList[0].mainName+" "+UserList[0].mainValue+" "+UserList[1].mainName+" "+UserList[1].mainValue)
-
+        console.log(cartesDesignList)
     }
     if (TurnChange===5) {
         infoValeurCartes=CompareCard(0)
         infoValeurCartesBot=CompareCard(1)
         console.log(infoValeurCartes)
         console.log(infoValeurCartesBot)
+        if (UserList[0].WinHand>UserList[1].WinHand){
+            UserList[0].jetons=UserList[0].jetons+pot
+            UserList[0].mise=0
+            UserList[1].mise=0
+            TurnChange=1
+            pot=0
+            cartesList=[]
+            cartesDesignList=[]
+            FoldOrShowdown()
+        } else if (UserList[0].WinHand===UserList[1].WinHand){
+            if (UserList[0].mainValue>UserList[1].mainValue){
+                UserList[0].jetons=UserList[0].jetons+pot
+                UserList[0].mise=0
+                UserList[1].mise=0
+                TurnChange=1
+                pot=0
+                cartesList=[]
+                cartesDesignList=[]
+                FoldOrShowdown()
+            } else {
+                UserList[1].jetons=UserList[1].jetons+pot
+                UserList[0].mise=0
+                UserList[1].mise=0
+                TurnChange=1
+                pot=0
+                cartesList=[]
+                cartesDesignList=[]
+                FoldOrShowdown()     
+            }            
+        } else {
+            UserList[1].jetons=UserList[1].jetons+pot
+            UserList[0].mise=0
+            UserList[1].mise=0
+            TurnChange=1
+            pot=0
+            cartesList=[]
+            cartesDesignList=[]
+            FoldOrShowdown()  
+        }
+
     }
     console.log(req.body.action)
     console.log(UserList[0].currentTurn)

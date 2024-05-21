@@ -6,5 +6,6 @@ export type user={
     mainName:string
     mainValue:number
     mise:number
+    WinHand:number
     currentTurn:boolean
 }

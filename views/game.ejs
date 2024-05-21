@@ -9,7 +9,7 @@
             <% if (TurnPartie===2) {%>
                 <img src="/images/<%= cartesDesignList[0]%>.png"><img src="/images/<%= cartesDesignList[1]%>.png"><img src="/images/<%= cartesDesignList[4]%>.png">
             <% } else {%>
-                <img src="/images/<%= cartesDesignList[0]%>.png"><img src="/images/<%= cartesDesignList[1]%>.png">
+                <img src="/images/<%= cartesDesignList[0]%>.png"><img src="/images/<%= cartesDesignList[1]%>.png"><img src="/images/carte-a-jouer.png">
             <% } %>
         <% } else {%>
             <% if (TurnPartie===2) {%>
@@ -29,7 +29,7 @@
         <meta http-equiv="refresh" content="6">
     <%} else { %>
     <form action="/accueil/game" method="post">
-        <% if (UserList[0].mise===0 && UserList[1].mise===0) {%>
+        <% if (UserList[0].mise===0 && UserList[1].mise===0 && TurnChange%2!=0) {%>
             <button type="submit" name="action" value="check" class="col-lg-2">check</button>
         <button type="submit" name="action" value="call" class="col-lg-2" disabled>call</button>
         <button type="submit" name="action" value="raise" class="col-lg-2" disabled>raise</button>
@@ -43,6 +43,13 @@
         <button type="submit" name="action" value="fold" class="col-lg-2">fold</button>
         <button type="submit" name="action" value="mise1" class="col-lg-1" disabled>mise (1)</button>
         <button type="submit" name="action" value="mise2" class="col-lg-1" disabled>mise (2)</button>
+        <% } else if (TurnChange%2===0 && UserList[0].mise===0 && UserList[1].mise===0) {%>
+            <button type="submit" name="action" value="check" class="col-lg-2">check</button>
+            <button type="submit" name="action" value="call" class="col-lg-2" disabled>call</button>
+            <button type="submit" name="action" value="raise" class="col-lg-2" >raise</button>
+            <button type="submit" name="action" value="fold" class="col-lg-2"disabled>fold</button>
+            <button type="submit" name="action" value="mise1" class="col-lg-1" disabled>mise (1)</button>
+            <button type="submit" name="action" value="mise2" class="col-lg-1" disabled>mise (2)</button>
         <% } else {%>
             <button type="submit" name="action" value="check" class="col-lg-2" disabled>check</button>
             <button type="submit" name="action" value="call" class="col-lg-2">call</button>
@@ -51,7 +58,7 @@
             <button type="submit" name="action" value="mise1" class="col-lg-1" disabled>mise (1)</button>
             <button type="submit" name="action" value="mise2" class="col-lg-1" disabled>mise (2)</button>
         <% } %>
-    </form>
+        </form>
     <% } %>
     <p>pot : <%= pot %></p>
     <p>turn : <%= TurnChange %></p>
