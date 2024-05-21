@@ -62,6 +62,8 @@
     <% } %>
     <p>pot : <%= pot %></p>
     <p>turn : <%= TurnChange %></p>
+    <% if (TurnChange <=1 ){ %>
     <p><%= WinnerPhrase %></p>
+    <% } %>
 </body>
 </html>

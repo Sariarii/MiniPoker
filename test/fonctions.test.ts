@@ -25,6 +25,77 @@ describe('Type carte', () => {
         expect(CompareCard(0,UserList[0].mainName)).toBe("Carte Haute");
     })
 
+    it ('must return true(Suite > carte haute)', () => {
+        UserList[0].mainName="ACQPKP"
+        UserList[1].mainName="ACJPKP"
+        CompareCard(0,UserList[0].mainName)
+        CompareCard(1,UserList[1].mainName)
+        expect(UserList[0].WinHand>UserList[1].WinHand).toBe(true);
+    })
+    it ('must return true(Suite > Paire)', () => {
+        UserList[0].mainName="ACQPKP"
+        UserList[1].mainName="ACJPJC"
+        CompareCard(0,UserList[0].mainName)
+        CompareCard(1,UserList[1].mainName)
+        expect(UserList[0].WinHand>UserList[1].WinHand).toBe(true);
+    })
+    it ('must return false(Suite < couleur)', () => {
+        UserList[0].mainName="ACQPKP"
+        UserList[1].mainName="ACJCTC"
+        CompareCard(0,UserList[0].mainName)
+        CompareCard(1,UserList[1].mainName)
+        expect(UserList[0].WinHand>UserList[1].WinHand).toBe(false);
+    })
+    it ('must return false(Suite < suite-couleur)', () => {
+        UserList[0].mainName="ACQPKP"
+        UserList[1].mainName="QCJCTC"
+        CompareCard(0,UserList[0].mainName)
+        CompareCard(1,UserList[1].mainName)
+        expect(UserList[0].WinHand>UserList[1].WinHand).toBe(false);
+    })
+    it ('must return true(Paire > carte-haute)', () => {
+        UserList[0].mainName="ACAPKP"
+        UserList[1].mainName="KCJPTC"
+        CompareCard(0,UserList[0].mainName)
+        CompareCard(1,UserList[1].mainName)
+        expect(UserList[0].WinHand>UserList[1].WinHand).toBe(true);
+    })
+    it ('must return false(Paire < couleur)', () => {
+        UserList[0].mainName="ACAPKP"
+        UserList[1].mainName="KCJCTC"
+        CompareCard(0,UserList[0].mainName)
+        CompareCard(1,UserList[1].mainName)
+        expect(UserList[0].WinHand>UserList[1].WinHand).toBe(false);
+    })
+    it ('must return false(Paire < Suite-couleur)', () => {
+        UserList[0].mainName="ACAPKP"
+        UserList[1].mainName="QCJCTC"
+        CompareCard(0,UserList[0].mainName)
+        CompareCard(1,UserList[1].mainName)
+        expect(UserList[0].WinHand>UserList[1].WinHand).toBe(false);
+    })
+    it ('must return false(Couleur < Suite-couleur)', () => {
+        UserList[0].mainName="9PAPKP"
+        UserList[1].mainName="QCJCTC"
+        CompareCard(0,UserList[0].mainName)
+        CompareCard(1,UserList[1].mainName)
+        expect(UserList[0].WinHand>UserList[1].WinHand).toBe(false);
+    })
+    it ('must return true(Couleur > Carte-Haute)', () => {
+        UserList[0].mainName="ACAPKP"
+        UserList[1].mainName="QC9CTP"
+        CompareCard(0,UserList[0].mainName)
+        CompareCard(1,UserList[1].mainName)
+        expect(UserList[0].WinHand>UserList[1].WinHand).toBe(true);
+    })
+
+    it ('must return true(Suite-Couleur > Carte-Haute)', () => {
+        UserList[0].mainName="APKPQP"
+        UserList[1].mainName="QC9CTP"
+        CompareCard(0,UserList[0].mainName)
+        CompareCard(1,UserList[1].mainName)
+        expect(UserList[0].WinHand>UserList[1].WinHand).toBe(true);
+    })
 })
 
 describe('Tirage carte ', () => {

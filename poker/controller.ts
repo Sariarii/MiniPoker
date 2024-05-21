@@ -145,7 +145,7 @@ export function GetWinner(){
         cartesList=[]
         cartesDesignList=[]
         WinnerPhrase="Bravo "+UserList[0].name+" vous avez gagné !!"
-        setTimeout(FoldOrShowdown,3000)  
+        FoldOrShowdown() 
     } else if (UserList[0].WinHand===UserList[1].WinHand){
         if (UserList[0].mainValue>UserList[1].mainValue){
             UserList[0].jetons=UserList[0].jetons+pot
@@ -156,7 +156,7 @@ export function GetWinner(){
             cartesList=[]
             cartesDesignList=[]
             WinnerPhrase="Bravo "+UserList[0].name+" vous avez gagné !!"
-            setTimeout(FoldOrShowdown,3000)  
+            FoldOrShowdown()
         } else {
             UserList[1].jetons=UserList[1].jetons+pot
             UserList[0].mise=0
@@ -166,7 +166,7 @@ export function GetWinner(){
             cartesList=[]
             cartesDesignList=[]
             WinnerPhrase="Dommage "+UserList[0].name+" vous avez perdu :("
-            setTimeout(FoldOrShowdown,3000)     
+            FoldOrShowdown()   
         }            
     } else {
         UserList[1].jetons=UserList[1].jetons+pot
@@ -177,7 +177,7 @@ export function GetWinner(){
         cartesList=[]
         cartesDesignList=[]
         WinnerPhrase="Dommage "+UserList[0].name+" vous avez perdu :("
-        setTimeout(FoldOrShowdown,3000)    
+        FoldOrShowdown()  
     }
 }
 
@@ -245,7 +245,6 @@ export function CompareCard(Id:number,Hand:string){
     }
 
 export function FoldOrShowdown(){
-    WinnerPhrase=""
     TurnPartie=1
     stackinitial=UserList[0].jetons+UserList[1].jetons
     UserList[0].jetons-=1
@@ -330,7 +329,8 @@ export function BotTurn(){
             pot=0
             cartesList=[]
             cartesDesignList=[]
-            setTimeout(FoldOrShowdown,3000)
+            WinnerPhrase="Votre adversaire a fold !"
+            FoldOrShowdown()
             break;
         case 'call':
             UserList[0].currentTurn=true
@@ -449,7 +449,8 @@ export const Turn : RequestHandler = (req,res)=>{
             pot=0
             cartesList=[]
             cartesDesignList=[]
-            setTimeout(FoldOrShowdown,3000)
+            WinnerPhrase="Vous avez fold !"
+            FoldOrShowdown()
             break;
         case 'call':
             UserList[0].currentTurn=false
