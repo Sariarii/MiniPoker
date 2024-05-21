@@ -19,7 +19,24 @@ let count:number
 let aQuiLeTour:number=1
 let infoValeurCartes:string
 let infoValeurCartesBot:string
+let WinnerPhrase:string=""
 
+export function reset(){
+cartesList=[]
+cartesDesignList=[]
+ TurnChange=1
+ TurnPartie=1
+ ValueAs=0
+ ValueK=0
+ ValueQ=0
+ ValueJ=0
+ ValueTen=0
+ ValueNine=0
+ FlushPique=0
+ flushCoeur=0
+ aQuiLeTour=1
+
+}
 
 export function RemplissageCartes(){
 let carte:cartes={
@@ -118,7 +135,53 @@ cartesList.splice(idx,1)
 return {RandomCarte,ValueCard}
 }
 
-export function CompareCard(Id:number){
+export function GetWinner(){
+    if (UserList[0].WinHand>UserList[1].WinHand){
+        UserList[0].jetons=UserList[0].jetons+pot
+        UserList[0].mise=0
+        UserList[1].mise=0
+        TurnChange=1
+        pot=0
+        cartesList=[]
+        cartesDesignList=[]
+        WinnerPhrase="Bravo "+UserList[0].name+" vous avez gagné !!"
+        setTimeout(FoldOrShowdown,3000)  
+    } else if (UserList[0].WinHand===UserList[1].WinHand){
+        if (UserList[0].mainValue>UserList[1].mainValue){
+            UserList[0].jetons=UserList[0].jetons+pot
+            UserList[0].mise=0
+            UserList[1].mise=0
+            TurnChange=1
+            pot=0
+            cartesList=[]
+            cartesDesignList=[]
+            WinnerPhrase="Bravo "+UserList[0].name+" vous avez gagné !!"
+            setTimeout(FoldOrShowdown,3000)  
+        } else {
+            UserList[1].jetons=UserList[1].jetons+pot
+            UserList[0].mise=0
+            UserList[1].mise=0
+            TurnChange=1
+            pot=0
+            cartesList=[]
+            cartesDesignList=[]
+            WinnerPhrase="Dommage "+UserList[0].name+" vous avez perdu :("
+            setTimeout(FoldOrShowdown,3000)     
+        }            
+    } else {
+        UserList[1].jetons=UserList[1].jetons+pot
+        UserList[0].mise=0
+        UserList[1].mise=0
+        TurnChange=1
+        pot=0
+        cartesList=[]
+        cartesDesignList=[]
+        WinnerPhrase="Dommage "+UserList[0].name+" vous avez perdu :("
+        setTimeout(FoldOrShowdown,3000)    
+    }
+}
+
+export function CompareCard(Id:number,Hand:string){
     count=0
     ValueAs=0
     ValueK=0
@@ -128,9 +191,9 @@ export function CompareCard(Id:number){
     ValueNine=0
     flushCoeur=0
     FlushPique=0
-    while (count<=UserList[Id].mainName.length){
-        console.log(UserList[Id].mainName.substring(count,count+1))
-        switch (UserList[Id].mainName.substring(count,count+1)){
+    while (count<=Hand.length){
+        console.log(Hand.substring(count,count+1))
+        switch (Hand.substring(count,count+1)){
             case "A" :
                 ValueAs++
                 break;
@@ -159,25 +222,30 @@ export function CompareCard(Id:number){
         count++
     }
     console.log(ValueAs,ValueK,ValueQ,ValueJ,ValueTen,FlushPique,flushCoeur)
-    if (ValueAs===2 || ValueK===2 || ValueQ===2 || ValueJ===2 || ValueTen===2 || ValueNine===2){
-        UserList[Id].WinHand=1
-        return "Paire"
-    } else if ((ValueAs===1 && ValueK===1 && ValueQ===1) || (ValueJ===1 && ValueK===1 && ValueQ===1) || (ValueTen===1 && ValueJ===1 && ValueQ===1) || (ValueTen===1 && ValueNine===1 && ValueJ===1) && (flushCoeur!=3 || FlushPique!=3)){
-        UserList[Id].WinHand=2
-        return "Suite"
-    } else if (flushCoeur===3 || FlushPique===3) {
-        UserList[Id].WinHand=3
-        return "Couleur"
-    } else if ((ValueAs===1 && ValueK===1 && ValueQ===1) || (ValueJ===1 && ValueK===1 && ValueQ===1) || (ValueTen===1 && ValueJ===1 && ValueQ===1) || (ValueTen===1 && ValueNine===1 && ValueJ===1) && (flushCoeur===3 || FlushPique===3)){
-        UserList[Id].WinHand=4
-        return "Suite-Couleur"
+    if ((flushCoeur!=3 && FlushPique!=3)){
+        if (ValueAs===2 || ValueK===2 || ValueQ===2 || ValueJ===2 || ValueTen===2 || ValueNine===2){
+            UserList[Id].WinHand=1
+            return "Paire"
+        } else if ((ValueAs===1 && ValueK===1 && ValueQ===1) || (ValueJ===1 && ValueK===1 && ValueQ===1) || (ValueTen===1 && ValueJ===1 && ValueQ===1) || (ValueTen===1 && ValueNine===1 && ValueJ===1)){
+            UserList[Id].WinHand=2
+            return "Suite"
+        }else {
+            UserList[Id].WinHand=0
+            return "Carte Haute"  
+        }
     } else {
-        UserList[Id].WinHand=0
-        return "Carte Haute"  
-    }
+        if ((ValueAs===1 && ValueK===1 && ValueQ===1) || (ValueJ===1 && ValueK===1 && ValueQ===1) || (ValueTen===1 && ValueJ===1 && ValueQ===1) || (ValueTen===1 && ValueNine===1 && ValueJ===1)){
+            UserList[Id].WinHand=4
+            return "Suite-Couleur"
+        }else {
+        UserList[Id].WinHand=3
+            return "Couleur"
+        }
+    } 
     }
 
 export function FoldOrShowdown(){
+    WinnerPhrase=""
     TurnPartie=1
     stackinitial=UserList[0].jetons+UserList[1].jetons
     UserList[0].jetons-=1
@@ -262,7 +330,7 @@ export function BotTurn(){
             pot=0
             cartesList=[]
             cartesDesignList=[]
-            FoldOrShowdown()
+            setTimeout(FoldOrShowdown,3000)
             break;
         case 'call':
             UserList[0].currentTurn=true
@@ -291,50 +359,11 @@ export function BotTurn(){
 
     }
     if (TurnChange===5) {
-        infoValeurCartes=CompareCard(0)
-        infoValeurCartesBot=CompareCard(1)
+        infoValeurCartes=CompareCard(0,UserList[0].mainName)
+        infoValeurCartesBot=CompareCard(1,UserList[1].mainName)
         console.log(infoValeurCartes)
         console.log(infoValeurCartesBot)
-        if (UserList[0].WinHand>UserList[1].WinHand){
-            UserList[0].jetons=UserList[0].jetons+pot
-            UserList[0].mise=0
-            UserList[1].mise=0
-            TurnChange=1
-            pot=0
-            cartesList=[]
-            cartesDesignList=[]
-            FoldOrShowdown()
-        } else if (UserList[0].WinHand===UserList[1].WinHand){
-            if (UserList[0].mainValue>UserList[1].mainValue){
-                UserList[0].jetons=UserList[0].jetons+pot
-                UserList[0].mise=0
-                UserList[1].mise=0
-                TurnChange=1
-                pot=0
-                cartesList=[]
-                cartesDesignList=[]
-                FoldOrShowdown()
-            } else {
-                UserList[1].jetons=UserList[1].jetons+pot
-                UserList[0].mise=0
-                UserList[1].mise=0
-                TurnChange=1
-                pot=0
-                cartesList=[]
-                cartesDesignList=[]
-                FoldOrShowdown()     
-            }            
-        } else {
-            UserList[1].jetons=UserList[1].jetons+pot
-            UserList[0].mise=0
-            UserList[1].mise=0
-            TurnChange=1
-            pot=0
-            cartesList=[]
-            cartesDesignList=[]
-            FoldOrShowdown()  
-        }
-
+        GetWinner()
     }
         
 }
@@ -392,7 +421,7 @@ export const ViewAccueil : RequestHandler = (req, res) => {
 
 export const Game : RequestHandler = (req, res) => {
     
-    res.render('game',{cartesList,UserList,cartesDesignList,pot,BotTurn,TurnPartie,TurnChange})
+    res.render('game',{cartesList,UserList,cartesDesignList,pot,BotTurn,TurnPartie,TurnChange,WinnerPhrase})
 }
 
 export const Turn : RequestHandler = (req,res)=>{
@@ -420,7 +449,7 @@ export const Turn : RequestHandler = (req,res)=>{
             pot=0
             cartesList=[]
             cartesDesignList=[]
-            FoldOrShowdown()
+            setTimeout(FoldOrShowdown,3000)
             break;
         case 'call':
             UserList[0].currentTurn=false
@@ -463,50 +492,11 @@ export const Turn : RequestHandler = (req,res)=>{
         console.log(cartesDesignList)
     }
     if (TurnChange===5) {
-        infoValeurCartes=CompareCard(0)
-        infoValeurCartesBot=CompareCard(1)
+        infoValeurCartes=CompareCard(0,UserList[0].mainName)
+        infoValeurCartesBot=CompareCard(1,UserList[1].mainName)
         console.log(infoValeurCartes)
         console.log(infoValeurCartesBot)
-        if (UserList[0].WinHand>UserList[1].WinHand){
-            UserList[0].jetons=UserList[0].jetons+pot
-            UserList[0].mise=0
-            UserList[1].mise=0
-            TurnChange=1
-            pot=0
-            cartesList=[]
-            cartesDesignList=[]
-            FoldOrShowdown()
-        } else if (UserList[0].WinHand===UserList[1].WinHand){
-            if (UserList[0].mainValue>UserList[1].mainValue){
-                UserList[0].jetons=UserList[0].jetons+pot
-                UserList[0].mise=0
-                UserList[1].mise=0
-                TurnChange=1
-                pot=0
-                cartesList=[]
-                cartesDesignList=[]
-                FoldOrShowdown()
-            } else {
-                UserList[1].jetons=UserList[1].jetons+pot
-                UserList[0].mise=0
-                UserList[1].mise=0
-                TurnChange=1
-                pot=0
-                cartesList=[]
-                cartesDesignList=[]
-                FoldOrShowdown()     
-            }            
-        } else {
-            UserList[1].jetons=UserList[1].jetons+pot
-            UserList[0].mise=0
-            UserList[1].mise=0
-            TurnChange=1
-            pot=0
-            cartesList=[]
-            cartesDesignList=[]
-            FoldOrShowdown()  
-        }
-
+        GetWinner()
     }
     console.log(req.body.action)
     console.log(UserList[0].currentTurn)
